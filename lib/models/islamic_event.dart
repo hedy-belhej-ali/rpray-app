@@ -6,6 +6,7 @@ enum OccasionType {
     label: 'Ramadan',
     arabicLabel: 'رمضان',
     description: 'One countdown, exactly three days before the expected start.',
+    audioRaw: 'ramadhan_notifa',
     defaultEnabled: true,
   ),
   eidAlFitr(

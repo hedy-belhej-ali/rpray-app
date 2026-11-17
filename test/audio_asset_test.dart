@@ -54,8 +54,9 @@ void main() {
         );
         expect(AudioAssetService.occasionAsset(type), 'assets/$preview');
       }
-      expect(withAudio, OccasionType.values.length - 1,
-          reason: 'the Ramadan countdown uses the default channel sound');
+      // Every occasion, including the Ramadan countdown, carries its own
+      // recorded voice and raw resource.
+      expect(withAudio, OccasionType.values.length);
     });
   });
 

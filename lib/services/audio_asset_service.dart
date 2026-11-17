@@ -42,7 +42,7 @@ class AudioAssetService {
       OccasionType.whiteDays => 'voices/notif-ayam-lbidh.mp3',
       OccasionType.lastTenNights => 'voices/10-awakhr.mp3',
       OccasionType.laylatAlQadr => 'voices/laylt-elkadr.mp3',
-      OccasionType.ramadan => null,
+      OccasionType.ramadan => 'voices/ramadhan-notifa.mp3',
     };
   }
 

@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:test/test.dart';
 import 'package:rafel/models/app_settings.dart';
+import 'package:rafel/models/islamic_event.dart';
 import 'package:rafel/models/prayer_day.dart';
 import 'package:rafel/models/prayer_name.dart';
 import 'package:rafel/models/prayer_settings.dart';
+import 'package:rafel/services/audio_asset_service.dart';
+import 'package:rafel/services/islamic_events_service.dart';
 import 'package:rafel/services/notification_ids.dart';
 import 'package:rafel/services/prayer_schedule_service.dart';
 import 'package:rafel/services/prayer_times_service.dart';
@@ -229,6 +234,67 @@ void main() {
       expect(
         adhans.map((adhan) => adhan.dedupeKey).toSet(),
         hasLength(10),
+      );
+    });
+  });
+
+  group('occasion sounds on their dates', () {
+    // Mirrors NotificationScheduler.buildPlan's event pipeline. That class
+    // imports package:flutter/foundation.dart and cannot run as a pure Dart
+    // test; the contract below is exactly what the scheduler consumes.
+    test('every scheduled occasion carries its own recorded sound', () {
+      final events = IslamicEventsService().upcoming(
+        from: DateTime.utc(2026, 1, 1),
+        to: DateTime.utc(2026, 12, 31),
+        timezoneId: 'Africa/Tunis',
+      );
+      expect(events, isNotEmpty);
+
+      final dedupeKeys = <String>{};
+      for (final event in events) {
+        final raw = event.audioRaw;
+        expect(raw, isNotNull,
+            reason: '${event.type.label} (${event.key}) has no recorded sound');
+        expect(
+          File('android/app/src/main/res/raw/$raw.mp3').existsSync(),
+          isTrue,
+          reason: 'res/raw/$raw.mp3 is missing for ${event.key}',
+        );
+        expect(
+          AudioAssetService.occasionChannelId(event.type),
+          'rafel_event_$raw',
+          reason: '${event.key} must play on its own channel',
+        );
+        expect(
+          File(
+            'assets/${AudioAssetService.occasionPreviewAsset(event.type)}',
+          ).existsSync(),
+          isTrue,
+          reason: 'preview asset is missing for ${event.key}',
+        );
+
+        final id = NotificationIds.event(event.key);
+        expect(id, greaterThan(0));
+        expect(id, lessThan(0x7FFFFFFF));
+        dedupeKeys.add('event|${event.key}');
+      }
+      // One plan per event occurrence — never a duplicate notification.
+      expect(dedupeKeys, hasLength(events.length));
+    });
+
+    test('the Ramadan countdown is armed with the ramadhan_notifa sound', () {
+      final events = IslamicEventsService().upcoming(
+        from: DateTime.utc(2026, 1, 1),
+        to: DateTime.utc(2026, 12, 31),
+        timezoneId: 'Africa/Tunis',
+      );
+      final countdown =
+          events.where((event) => event.type == OccasionType.ramadan).single;
+      expect(countdown.key, 'ramadan_countdown_1447');
+      expect(countdown.audioRaw, 'ramadhan_notifa');
+      expect(
+        AudioAssetService.occasionChannelId(OccasionType.ramadan),
+        'rafel_event_ramadhan_notifa',
       );
     });
   });
