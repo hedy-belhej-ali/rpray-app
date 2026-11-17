@@ -85,7 +85,7 @@ abstract final class RafelPalette {
 
   /// Dark mode — brand ink background, paper text, warm gold accent.
 
-  static const Color darkBackground = Color.fromARGB(255, 0, 0, 0); // brand ink
+  static const Color darkBackground = Color(0xFF100E09); // brand ink
   static const Color darkSurface = Color(0xFF1A1610); // cards above ink
   static const Color darkOnSurface = Color(0xFFE6E6E6); // brand paper
   static const Color darkSurfaceVariant = Color(0xFFA59D8E); // muted text
@@ -188,7 +188,9 @@ abstract final class RafelThemeScheme {
       fontFamily: 'IBMPlexSans',
       textTheme: textTheme,
       primaryTextTheme: textTheme,
-      splashFactory: InkSparkle.splashFactory,
+      // InkSparkle is the most expensive splash effect and stutters on
+      // entry-level GPUs; the standard ripple reads the same and is cheap.
+      splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarThemeData(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -409,7 +411,11 @@ abstract final class RafelThemeScheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
-          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+          // FadeForwards instead of PredictiveBack: the predictive-back
+          // transition scales the page with rounded corners and briefly
+          // exposes the chrome behind it, which read as a white flash on
+          // mid-range phones. FadeForwards is cheaper and opaque.
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
           TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
         },
       ),

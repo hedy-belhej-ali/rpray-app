@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
@@ -56,9 +57,35 @@ class RafelRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoading = context.select<PrayerController, bool>((c) => c.isLoading);
     final needsSetup = context.select<PrayerController, bool>((c) => c.needsSetup);
-    if (isLoading) return const _RafelSplash();
-    if (needsSetup) return const SetupScreen();
-    return const HomeShell();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Own the system chrome so Android never paints its default white
+    // navigation/status bars between route changes.
+    final SystemUiOverlayStyle chrome = isLoading
+        ? const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: RafelPalette.darkBackground,
+            systemNavigationBarIconBrightness: Brightness.light,
+            systemNavigationBarContrastEnforced: false,
+          )
+        : SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor:
+                Theme.of(context).scaffoldBackgroundColor,
+            systemNavigationBarIconBrightness:
+                isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarContrastEnforced: false,
+          );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: chrome,
+      child: isLoading
+          ? const _RafelSplash()
+          : (needsSetup ? const SetupScreen() : const HomeShell()),
+    );
   }
 }
 
