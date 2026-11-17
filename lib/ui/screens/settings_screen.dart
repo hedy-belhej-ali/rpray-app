@@ -398,6 +398,23 @@ class SettingsScreen extends StatelessWidget {
                   ),
             ),
           ],
+
+          // ── Credit ─────────────────────────────────────────────────────────
+          const SizedBox(height: RafelSpace.xl),
+          Center(
+            child: Text(
+              'made by hedy belhej ali',
+              style: TextStyle(
+                fontFamily: 'IBMPlexSans',
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                // Faded white on the true-black dark background; the same
+                // onSurface tone fades to readable ink on the light paper.
+                color: theme.onSurface.withValues(alpha: 0.38),
+              ),
+            ),
+          ),
+          const SizedBox(height: RafelSpace.lg),
         ],
       ),
     );
