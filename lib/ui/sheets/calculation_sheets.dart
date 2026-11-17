@@ -17,12 +17,9 @@ Future<T?> showRafelChoiceSheet<T>({
     useSafeArea: true,
     isScrollControlled: true,
     backgroundColor: theme.surface,
-    builder: (context) => DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.72,
-      minChildSize: 0.42,
-      maxChildSize: 0.94,
-      builder: (context, scrollController) => Column(
+    builder: (context) => SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.72,
+      child: Column(
         children: <Widget>[
           const RafelSheetHandle(),
           Padding(
@@ -32,7 +29,6 @@ Future<T?> showRafelChoiceSheet<T>({
           const SizedBox(height: RafelSpace.md),
           Expanded(
             child: ListView.separated(
-              controller: scrollController,
               padding: const EdgeInsets.fromLTRB(
                 RafelSpace.lg,
                 0,

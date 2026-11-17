@@ -37,13 +37,12 @@ class _PrayerDetailSheet extends StatelessWidget {
         controller.settings.calculation.adjustments.forPrayer(prayer);
     final warnings = controller.today?.warnings ?? const <String>[];
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.86,
-      minChildSize: 0.5,
-      maxChildSize: 0.96,
-      builder: (context, scrollController) => ListView(
-        controller: scrollController,
+    // Fixed-height sheet: laid out once, then slid up as a whole.
+    // (DraggableScrollableSheet re-laid-out all content on every entrance
+    // frame and drag, which stuttered on mid-range devices.)
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.86,
+      child: ListView(
         padding: EdgeInsets.fromLTRB(
           RafelSpace.lg,
           0,

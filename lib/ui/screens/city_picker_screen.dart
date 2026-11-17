@@ -457,12 +457,9 @@ class _TimezonePickerSheetState extends State<TimezonePickerSheet> {
     final matches = query.isEmpty
         ? _all
         : _all.where((name) => name.toLowerCase().contains(query)).toList();
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.8,
-      minChildSize: 0.5,
-      maxChildSize: 0.96,
-      builder: (context, controller) => Column(
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.8,
+      child: Column(
         children: <Widget>[
           const RafelSheetHandle(),
           Padding(
@@ -491,7 +488,6 @@ class _TimezonePickerSheetState extends State<TimezonePickerSheet> {
           const SizedBox(height: RafelSpace.sm),
           Expanded(
             child: ListView.builder(
-              controller: controller,
               itemCount: matches.length,
               itemBuilder: (context, index) {
                 final name = matches[index];

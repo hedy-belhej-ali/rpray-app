@@ -460,13 +460,9 @@ class _OccasionPreferencesSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<PrayerController>();
     final theme = RafelTheme.of(context);
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.96,
-      builder: (context, scrollController) => ListView(
-        controller: scrollController,
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.85,
+      child: ListView(
         padding: EdgeInsets.fromLTRB(
           RafelSpace.lg,
           0,
