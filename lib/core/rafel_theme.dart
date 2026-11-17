@@ -85,7 +85,8 @@ abstract final class RafelPalette {
 
   /// Dark mode — brand ink background, paper text, warm gold accent.
 
-  static const Color darkBackground = Color(0xFF100E09); // brand ink
+  // True black is the chosen dark-mode look (user preference).
+  static const Color darkBackground = Color.fromARGB(255, 0, 0, 0);
   static const Color darkSurface = Color(0xFF1A1610); // cards above ink
   static const Color darkOnSurface = Color(0xFFE6E6E6); // brand paper
   static const Color darkSurfaceVariant = Color(0xFFA59D8E); // muted text
