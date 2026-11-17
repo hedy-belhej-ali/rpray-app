@@ -69,36 +69,31 @@ void main() {
   });
 
   group('Eid and Arafah', () {
-    test('Eid al-Fitr has exactly three phases and lands on 1 Shawwal', () {
+    test('Eid al-Fitr fires only once, on 1 Shawwal', () {
       final events = _events();
       final eid = events
           .where((event) => event.type == OccasionType.eidAlFitr)
           .toList();
-      expect(eid, hasLength(3));
-      expect(
-        eid.map((event) => event.phase).toSet(),
-        <EventPhase>{
-          EventPhase.threeDaysBefore,
-          EventPhase.dayBefore,
-          EventPhase.onDay,
-        },
-      );
-      final onDay = _byKey(events, 'eid_fitr_1447_on_day');
+      expect(eid, hasLength(1));
+      expect(eid.single.key, 'eid_fitr_1447_on_day');
+      expect(eid.single.phase, EventPhase.onDay);
       final primary = _service
           .primaryDates(from: _from, to: _to, timezoneId: _timezone)
           .firstWhere((date) => date.type == OccasionType.eidAlFitr);
-      expect(_civil(onDay.date), _civil(primary.date));
-      expect(onDay.audioRaw, 'eid_fitr');
+      expect(_civil(eid.single.date), _civil(primary.date));
+      expect(eid.single.audioRaw, 'eid_fitr');
     });
 
-    test('Eid al-Adha has three phases and Arafah is the day before', () {
+    test('Eid al-Adha fires only once, the day after Arafah', () {
       final events = _events();
       final eid = events
           .where((event) => event.type == OccasionType.eidAlAdha)
           .toList();
-      expect(eid, hasLength(3));
+      expect(eid, hasLength(1));
+      expect(eid.single.key, 'eid_adha_1447_on_day');
+      expect(eid.single.phase, EventPhase.onDay);
 
-      final eidDay = _byKey(events, 'eid_adha_1447_on_day');
+      final eidDay = eid.single;
       final arafahDay = _byKey(events, 'arafah_1447_day');
       final arafahEve = _byKey(events, 'arafah_1447_eve');
       expect(
@@ -215,7 +210,7 @@ void main() {
       );
     });
 
-    test('a confirmed Eid al-Fitr override moves the whole triplet', () {
+    test('a confirmed Eid al-Fitr override moves the single notification', () {
       final base = _events();
       final baseOnDay = _byKey(base, 'eid_fitr_1447_on_day');
       final override = EventDateOverride(
@@ -232,13 +227,8 @@ void main() {
         override.key: override,
       });
       final onDay = _byKey(events, 'eid_fitr_1447_on_day');
-      final dayBefore = _byKey(events, 'eid_fitr_1447_day_before');
-      final threeDays = _byKey(events, 'eid_fitr_1447_three_days_before');
       expect(_civil(onDay.date), override.date);
-      expect(_civil(dayBefore.date), override.date.subtract(const Duration(days: 1)));
-      expect(_civil(threeDays.date), override.date.subtract(const Duration(days: 3)));
       expect(onDay.status, EventDateStatus.confirmed);
-      expect(dayBefore.status, EventDateStatus.confirmed);
 
       final primary = _service.primaryDates(
         from: _from,

@@ -436,7 +436,7 @@ class IslamicEventsService {
     if (eid == null) return;
     final override = overrides['eid_fitr_$year'];
     final status = _statusForPrimary(primary: override, hijriOffset: hijriOffset);
-    _addEidTriplet(
+    _addEidOnDay(
       seeds: seeds,
       year: year,
       eidDate: eid,
@@ -464,7 +464,7 @@ class IslamicEventsService {
       primary: eidOverride,
       hijriOffset: hijriOffset,
     );
-    _addEidTriplet(
+    _addEidOnDay(
       seeds: seeds,
       year: year,
       eidDate: eid,
@@ -551,7 +551,8 @@ class IslamicEventsService {
     }
   }
 
-  void _addEidTriplet({
+  /// Both Eids notify exactly once — on the first day of Eid.
+  void _addEidOnDay({
     required Map<String, _EventSeed> seeds,
     required int year,
     required DateTime eidDate,
@@ -560,26 +561,19 @@ class IslamicEventsService {
     required EventDateStatus status,
     required String hijriLabel,
   }) {
-    final phases = <EventPhase, DateTime>{
-      EventPhase.threeDaysBefore: _addDays(eidDate, -3),
-      EventPhase.dayBefore: _addDays(eidDate, -1),
-      EventPhase.onDay: eidDate,
-    };
-    for (final entry in phases.entries) {
-      _addSeed(
-        seeds: seeds,
-        key: '${type.key}_${year}_${entry.key.key}',
-        type: type,
-        phase: entry.key,
-        civilDate: entry.value,
-        hour: 9,
-        copy: _copyFor(type, entry.key),
-        status: status,
-        hijriYear: year,
-        hijriLabel: hijriLabel,
-        primaryOverrideKey: overrideKey,
-      );
-    }
+    _addSeed(
+      seeds: seeds,
+      key: '${type.key}_${year}_${EventPhase.onDay.key}',
+      type: type,
+      phase: EventPhase.onDay,
+      civilDate: eidDate,
+      hour: 9,
+      copy: _copyFor(type, EventPhase.onDay),
+      status: status,
+      hijriYear: year,
+      hijriLabel: hijriLabel,
+      primaryOverrideKey: overrideKey,
+    );
   }
 
   void _addSeed({
@@ -691,48 +685,18 @@ class IslamicEventsService {
               'blessings.',
         );
       case OccasionType.eidAlFitr:
-        switch (phase) {
-          case EventPhase.threeDaysBefore:
-            return const _EventCopy(
-              'Eid Is Almost Here! 🌙',
-              'Eid al-Fitr is expected in 3 days! Prepare to celebrate the '
-                  'blessings of Allah and the end of Ramadan.',
-            );
-          case EventPhase.dayBefore:
-            return const _EventCopy(
-              'Tomorrow Is Eid! 🎉',
-              'Tomorrow is expected to be Eid al-Fitr. May Allah accept your '
-                  'fasting, prayers and good deeds.',
-            );
-          default:
-            return const _EventCopy(
-              'Eid Mubarak! 🎉',
-              'Eid Mubarak! May Allah accept your fasting, prayers and good '
-                  'deeds. May your home be filled with happiness, peace and '
-                  'blessings.',
-            );
-        }
+        return const _EventCopy(
+          'Eid Mubarak! 🎉',
+          'Eid Mubarak! May Allah accept your fasting, prayers and good '
+              'deeds. May your home be filled with happiness, peace and '
+              'blessings.',
+        );
       case OccasionType.eidAlAdha:
-        switch (phase) {
-          case EventPhase.threeDaysBefore:
-            return const _EventCopy(
-              'Eid al-Adha Is Approaching!',
-              'Eid al-Adha is expected in 3 days. Prepare your heart for this '
-                  'blessed occasion.',
-            );
-          case EventPhase.dayBefore:
-            return const _EventCopy(
-              'Tomorrow Is Eid al-Adha!',
-              'Tomorrow is expected to be Eid al-Adha. May Allah accept your '
-                  'sacrifices and good deeds.',
-            );
-          default:
-            return const _EventCopy(
-              'Eid al-Adha Mubarak! 🐑',
-              'May Allah accept your sacrifice, prayers and good deeds. '
-                  'Wishing you and your family a blessed Eid.',
-            );
-        }
+        return const _EventCopy(
+          'Eid al-Adha Mubarak! 🐑',
+          'May Allah accept your sacrifice, prayers and good deeds. '
+              'Wishing you and your family a blessed Eid.',
+        );
       case OccasionType.islamicNewYear:
         return phase == EventPhase.dayBefore
             ? const _EventCopy(
