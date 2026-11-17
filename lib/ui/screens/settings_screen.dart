@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../controllers/prayer_controller.dart';
 import '../../core/rafel_theme.dart';
@@ -381,6 +382,10 @@ class SettingsScreen extends StatelessWidget {
                         height: 1.55,
                       ),
                 ),
+                const SizedBox(height: RafelSpace.md),
+                const RafelDivider(),
+                const SizedBox(height: RafelSpace.md),
+                const _SocialLinksRow(),
               ],
             ),
           ),
@@ -708,6 +713,96 @@ class RafelOutlinedAction extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: theme.outline),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Social links footer
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SocialLink {
+  const _SocialLink({required this.label, required this.url, required this.icon});
+
+  final String label;
+  final String url;
+  final IconData icon;
+}
+
+const List<_SocialLink> _kSocialLinks = <_SocialLink>[
+  _SocialLink(
+    label: 'GitHub',
+    url: 'https://github.com/hedy-belhej-ali',
+    icon: Icons.code_rounded,
+  ),
+  _SocialLink(
+    label: 'LinkedIn',
+    url: 'https://www.linkedin.com/in/hedy-belhej-ali-291ab532a',
+    icon: Icons.work_outline_rounded,
+  ),
+  _SocialLink(
+    label: 'Instagram',
+    url: 'https://www.instagram.com/hedyy69/',
+    icon: Icons.photo_camera_outlined,
+  ),
+];
+
+class _SocialLinksRow extends StatelessWidget {
+  const _SocialLinksRow();
+
+  Future<void> _open(BuildContext context, _SocialLink link) async {
+    final bool opened = await launchUrl(
+      Uri.parse(link.url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && context.mounted) {
+      showRafelSnack(context, 'Could not open the link.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = RafelTheme.of(context);
+    return Row(
+      children: <Widget>[
+        for (int i = 0; i < _kSocialLinks.length; i++) ...<Widget>[
+          if (i > 0) const SizedBox(width: RafelSpace.xs),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _open(context, _kSocialLinks[i]),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: theme.elevated,
+                  borderRadius: BorderRadius.circular(RafelRadius.sm),
+                  border: Border.all(color: theme.outline),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(_kSocialLinks[i].icon, size: 15, color: theme.active),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        _kSocialLinks[i].label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'IBMPlexSans',
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: theme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
