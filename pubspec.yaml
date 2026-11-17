@@ -1,0 +1,73 @@
+name: rafel
+description: "Rafel — prayer times, countdown and reminders."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.1.0
+  cupertino_icons: ^1.0.8
+  adhan: ^2.0.0+1
+  hijri: ^3.0.1
+  http: ^1.6.0
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.6
+  geolocator: ^14.1.2
+  flutter_local_notifications: ^23.0.2
+  timezone: ^0.11.2
+  flutter_timezone: ^5.1.1
+  audioplayers: ^6.8.1
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  test: ^1.32.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
+    - assets/voices/
+    - assets/voices/Fajr/
+    - assets/voices/Dhuhr/
+    - assets/voices/Asr/
+    - assets/voices/Maghrib/
+    - assets/voices/Isha/
+  fonts:
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf
+        - asset: assets/fonts/Amiri-Bold.ttf
+          weight: 700
+    - family: IBMPlexSans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans-Regular.ttf
+        - asset: assets/fonts/IBMPlexSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSans-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "logo.png"
+  adaptive_icon_background: "#100E09"
+  adaptive_icon_foreground: "logo.png"
+  web:
+    generate: true
+    image_path: "logo.png"
+    background_color: "#100E09"
+    theme_color: "#100E09"
+  windows:
+    generate: true
+    image_path: "logo.png"
+    icon_size: 256
