@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Rpray is always dark: the window stays ink before, during and after
+         the Flutter first frame, so there is no white flash on launch. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:statusBarColor">@color/rafel_ink</item>
+        <item name="android:navigationBarColor">@color/rafel_ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme continues to paint the window behind the Flutter UI. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/rafel_ink</item>
+        <item name="android:statusBarColor">@color/rafel_ink</item>
+        <item name="android:navigationBarColor">@color/rafel_ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
