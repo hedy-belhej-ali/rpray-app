@@ -65,6 +65,46 @@ void main() {
       }
     });
 
+    test('every reminder plays its own prayer voice on its own channel', () {
+      final settings = AppSettings(location: _tunis);
+      final reminders = scheduler.buildRemindersForDay(
+        day: _day,
+        settings: settings,
+        now: _midnight,
+      );
+      expect(reminders, hasLength(30));
+
+      final seen = <String>{};
+      for (final reminder in reminders) {
+        final key = '${reminder.prayer.key}|${reminder.minutesBefore}';
+        expect(seen.add(key), isTrue, reason: 'duplicate plan for $key');
+        // The 5-minute Fajr reminder must play the Fajr recording — not
+        // another prayer's voice — on its own notification channel.
+        expect(
+          reminder.channelId,
+          AudioAssetService.reminderChannelId(
+            reminder.prayer,
+            reminder.minutesBefore,
+          ),
+          reason: 'wrong channel for $key',
+        );
+        expect(
+          reminder.soundRaw,
+          AudioAssetService.reminderRaw(reminder.prayer, reminder.minutesBefore),
+          reason: 'wrong recorded voice for $key',
+        );
+      }
+
+      // Full matrix: every prayer x every interval, nothing missing.
+      expect(seen, hasLength(30));
+      for (final prayer in PrayerName.values) {
+        for (final minutes in const <int>[5, 10, 15, 20, 25, 30]) {
+          expect(seen, contains('${prayer.key}|$minutes'),
+              reason: 'missing $minutes-min reminder for ${prayer.key}');
+        }
+      }
+    });
+
     test('every reminder id is unique and 31-bit safe', () {
       final settings = AppSettings(location: _tunis);
       final reminders = scheduler.buildRemindersForDay(
