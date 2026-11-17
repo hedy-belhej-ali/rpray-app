@@ -108,10 +108,30 @@ android/…/kotlin/com/rafel/rafel/   # AdhanScheduler, AdhanReceiver,
 ## Status
 
 - [x] Offline calculation verified against AlAdhan reference fixtures (±2 min)
-- [x] 60 pure logic tests passing (`dart test`)
+- [x] 63 pure logic tests passing (`dart test`)
 - [x] Full UI: setup, today, prayer detail, occasions, adjustments, settings, diagnostics
-- [ ] On-device verification of full adhan playback and reboot restore
-- [ ] Signed release APK
+- [x] Signed release APK — signed with the developer's own key, verified with `apksigner`
+- [x] **Reboot restore verified on device** — after a full reboot, with the app never
+      opened, the boot receiver re-armed 60 exact adhan alarms (`RTC_WAKEUP`,
+      `window=0`); the next restored alarm was the same-day Fajr
+- [ ] On-device audible check of the full adhan at prayer time (armed; checked at
+      the next prayer with the app closed)
+
+## Release signing
+
+`flutter build apk --release` signs with the release key configured in
+`android/key.properties` (keystore: `android/rafel-release-key.jks`). Both files
+are gitignored and must never be committed — losing them means no update can
+ever be installed over a signed release. A fresh clone without these files
+falls back to the debug key so `flutter run --release` still works.
+
+## Developer
+
+Built by **hedy belhej ali**.
+
+- GitHub — https://github.com/hedy-belhej-ali
+- LinkedIn — https://www.linkedin.com/in/hedy-belhej-ali-291ab532a
+- Instagram — https://www.instagram.com/hedyy69/
 
 ## License
 
