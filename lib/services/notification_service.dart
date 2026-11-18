@@ -15,6 +15,7 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
   bool _initialized = false;
   bool _supported = true;
+  bool _channelsEnsured = false;
   String? _initializationError;
 
   bool get isInitialized => _initialized;
@@ -48,7 +49,6 @@ class NotificationService {
           macOS: darwin,
         ),
       );
-      await _createChannels();
       _initialized = true;
     } catch (error) {
       _initialized = false;
@@ -57,14 +57,45 @@ class NotificationService {
     }
   }
 
+  /// Creates the notification channels once per app process. Channel creation
+  /// is 40+ platform calls, so it must never block the first frame. Existing
+  /// channels are left untouched (Android ignores re-created ones anyway).
+  Future<void> ensureChannels() async {
+    if (!_initialized) await initialize();
+    if (!_initialized || !_supported || _channelsEnsured) return;
+    try {
+      await _createChannels();
+      _channelsEnsured = true;
+    } catch (_) {
+      // Best effort; scheduling will report a clearer error if this matters.
+    }
+  }
+
   Future<void> _createChannels() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android == null) return;
 
+    // Query once and create only the channels that are missing. On every
+    // launch after the first this is a single platform call instead of 42.
+    final existing = <String>{};
+    try {
+      final channels = await android.getNotificationChannels();
+      if (channels != null) {
+        existing.addAll(channels.map((channel) => channel.id));
+      }
+    } catch (_) {
+      // Very old Android versions cannot list channels; create them all.
+    }
+
+    Future<void> ensure(AndroidNotificationChannel channel) async {
+      if (existing.contains(channel.id)) return;
+      await android.createNotificationChannel(channel);
+    }
+
     for (final prayer in PrayerName.values) {
       for (final minutes in const <int>[5, 10, 15, 20, 25, 30]) {
-        await android.createNotificationChannel(
+        await ensure(
           AndroidNotificationChannel(
             AudioAssetService.reminderChannelId(prayer, minutes),
             AudioAssetService.reminderChannelName(prayer, minutes),
@@ -84,7 +115,7 @@ class NotificationService {
 
     for (final type in OccasionType.values) {
       final raw = type.audioRaw;
-      await android.createNotificationChannel(
+      await ensure(
         AndroidNotificationChannel(
           AudioAssetService.occasionChannelId(type),
           raw == null ? 'Islamic occasions · Rpray' : '${type.label} · Rpray',
@@ -101,7 +132,7 @@ class NotificationService {
       );
     }
 
-    await android.createNotificationChannel(
+    await ensure(
       const AndroidNotificationChannel(
         'rafel_test',
         'Rpray test notifications',
@@ -302,6 +333,7 @@ class NotificationService {
 
   Future<void> showTestNotification() async {
     if (!_initialized) await initialize();
+    await ensureChannels();
     if (!_supported) return;
     await _plugin.show(
       id: NotificationIds.testId,

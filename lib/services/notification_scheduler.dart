@@ -201,6 +201,7 @@ class NotificationScheduler {
     }
 
     await notifications.initialize();
+    await notifications.ensureChannels();
     final permission = await notifications.permissionState();
     var exact = permission.exactAlarmsGranted;
     if (!permission.notificationsGranted) {
@@ -224,6 +225,15 @@ class NotificationScheduler {
     plan = _applyPlatformLimit(plan, warnings);
 
     var notificationsScheduled = 0;
+    var sinceYield = 0;
+    Future<void> breathe() async {
+      if (++sinceYield < 12) return;
+      sinceYield = 0;
+      // Yield to the UI isolate so re-arming hundreds of alarms never blocks
+      // scrolling or the first taps after launch.
+      await Future<void>.delayed(Duration.zero);
+    }
+
     if (platformSupported) {
       for (final reminder in plan.reminders) {
         try {
@@ -232,6 +242,7 @@ class NotificationScheduler {
         } catch (error) {
           errors.add('Reminder ${reminder.dedupeKey}: $error');
         }
+        await breathe();
       }
       for (final event in plan.events) {
         try {
@@ -240,6 +251,7 @@ class NotificationScheduler {
         } catch (error) {
           errors.add('Occasion ${event.dedupeKey}: $error');
         }
+        await breathe();
       }
     } else {
       warnings.add(notifications.initializationError ??

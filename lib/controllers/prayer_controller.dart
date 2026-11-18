@@ -189,18 +189,39 @@ class PrayerController extends ChangeNotifier {
     }
     TimezoneService.initialize();
     _now = _clock();
-    await _notifications.initialize();
     _deviceTimezoneId = await DeviceTimezoneService.deviceTimezoneId();
     _settings = await _repository.load();
-    _permission = await _notifications.permissionState();
     _initialized = true;
     _loading = false;
     _recalculate();
     _startTicker();
-    if (_settings.location != null) {
-      unawaited(scheduleNow());
-    }
     _notify();
+    unawaited(_warmUpNotifications());
+  }
+
+  /// Notification setup is deliberately off the critical path: the first
+  /// frame is painted before the plugin initializes, creates missing channels
+  /// and re-arms alarms. Otherwise 40+ platform calls make the first
+  /// interactions stutter.
+  Future<void> _warmUpNotifications() async {
+    await WidgetsBinding.instance.endOfFrame;
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    if (_disposed) return;
+
+    await _notifications.initialize();
+    if (_disposed) return;
+    await _notifications.ensureChannels();
+    if (_disposed) return;
+
+    _permission = await _notifications.permissionState();
+    _nativeExactAlarms = await _nativeAdhan.isAlarmPermissionGranted();
+    _notify();
+
+    if (_settings.location == null) return;
+    // Let the home screen settle before hundreds of scheduling calls.
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    if (_disposed) return;
+    await scheduleNow();
   }
 
   void _startTicker() {
