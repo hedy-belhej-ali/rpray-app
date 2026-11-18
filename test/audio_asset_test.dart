@@ -61,22 +61,38 @@ void main() {
   });
 
   group('audio contract', () {
-    test('paths follow voices/<Prayer>/<minutes>-min-<key>.mp3', () {
+    test('paths follow voices/<Prayer>/min_<minutes>_<key>.mp3', () {
       for (final prayer in PrayerName.values) {
         for (final minutes in const <int>[5, 10, 15, 20, 25, 30]) {
           expect(
             AudioAssetService.reminderAsset(prayer, minutes),
-            'assets/voices/${prayer.folder}/$minutes-min-${prayer.key}.mp3',
+            'assets/voices/${prayer.folder}/min_${minutes}_${prayer.key}.mp3',
           );
           expect(
             AudioAssetService.reminderPreviewAsset(prayer, minutes),
-            'voices/${prayer.folder}/$minutes-min-${prayer.key}.mp3',
+            'voices/${prayer.folder}/min_${minutes}_${prayer.key}.mp3',
           );
           expect(
             AudioAssetService.reminderRaw(prayer, minutes),
             'min_${minutes}_${prayer.key}',
           );
         }
+      }
+    });
+
+    test('every raw sound name is a legal Android resource name', () {
+      final names = <String>[
+        AudioAssetService.adhanRaw,
+        for (final prayer in PrayerName.values)
+          for (final minutes in const <int>[5, 10, 15, 20, 25, 30])
+            AudioAssetService.reminderRaw(prayer, minutes),
+        for (final type in OccasionType.values)
+          if (AudioAssetService.occasionRaw(type) != null)
+            AudioAssetService.occasionRaw(type)!,
+      ];
+      final legal = RegExp(r'^[a-z][a-z0-9_]*$');
+      for (final name in names) {
+        expect(legal.hasMatch(name), isTrue, reason: name);
       }
     });
 

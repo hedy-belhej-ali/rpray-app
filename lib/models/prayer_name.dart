@@ -1,5 +1,6 @@
 /// The five daily prayers. The [key] and [folder] values are part of the
-/// audio contract: `assets/voices/<folder>/<minutes>-min-<key>.mp3`.
+/// audio contract: `assets/voices/<folder>/min_<minutes>_<key>.mp3`, which is
+/// also the Android `res/raw` name used for the notification sound.
 enum PrayerName {
   fajr('fajr', 'Fajr', 'الفجر', 'Fajr'),
   dhuhr('dhuhr', 'Dhuhr', 'الظهر', 'Dhuhr'),

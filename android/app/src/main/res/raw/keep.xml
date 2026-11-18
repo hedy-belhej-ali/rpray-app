@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Notification sounds are resolved by name at runtime
+  (Resources.getIdentifier("min_15_asr", "raw", packageName)), which the
+  resource shrinker cannot see. Without this file the release build strips
+  every raw sound except adhan (statically referenced from AdhanService.kt),
+  and every reminder fails with PlatformException(invalid_sound).
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/*" />

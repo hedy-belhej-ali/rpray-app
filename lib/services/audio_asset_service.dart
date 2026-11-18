@@ -12,14 +12,20 @@ class AudioAssetService {
   /// Path used with `AssetSource`, which is relative to the `assets/` root.
   static const String adhanPreviewAsset = 'voices/adhan.mp3';
 
+  /// The single canonical name of a reminder sound. Android resource names
+  /// cannot contain dashes or start with a digit, so the bundled preview asset
+  /// and the `res/raw` notification sound share this legal name.
+  static String reminderFile(PrayerName prayer, int minutes) =>
+      'min_${minutes}_${prayer.key}';
+
   static String reminderAsset(PrayerName prayer, int minutes) =>
-      'assets/voices/${prayer.folder}/$minutes-min-${prayer.key}.mp3';
+      'assets/voices/${prayer.folder}/${reminderFile(prayer, minutes)}.mp3';
 
   static String reminderPreviewAsset(PrayerName prayer, int minutes) =>
-      'voices/${prayer.folder}/$minutes-min-${prayer.key}.mp3';
+      'voices/${prayer.folder}/${reminderFile(prayer, minutes)}.mp3';
 
   static String reminderRaw(PrayerName prayer, int minutes) =>
-      'min_${minutes}_${prayer.key}';
+      reminderFile(prayer, minutes);
 
   static String? occasionRaw(OccasionType type) => type.audioRaw;
 
