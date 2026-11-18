@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -357,16 +358,7 @@ class SettingsScreen extends StatelessWidget {
                         children: <Widget>[
                           const RafelWordmark(compact: true),
                           const SizedBox(height: 4),
-                          Text(
-                            'Version 1.0.0',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: theme.surfaceVariant
-                                      .withValues(alpha: 0.72),
-                                ),
-                          ),
+                          const _AppVersionText(),
                         ],
                       ),
                     ),
@@ -820,6 +812,37 @@ class _SocialLinksRow extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Shows the version Android actually installed, so the About card can never
+/// drift from `pubspec.yaml` (it used to be hardcoded to 1.0.0).
+class _AppVersionText extends StatefulWidget {
+  const _AppVersionText();
+
+  @override
+  State<_AppVersionText> createState() => _AppVersionTextState();
+}
+
+class _AppVersionTextState extends State<_AppVersionText> {
+  late final Future<PackageInfo> _info = PackageInfo.fromPlatform();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = RafelTheme.of(context);
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: theme.surfaceVariant.withValues(alpha: 0.72),
+        );
+    return FutureBuilder<PackageInfo>(
+      future: _info,
+      builder: (context, snapshot) {
+        final version = snapshot.data?.version;
+        return Text(
+          version == null ? 'Version …' : 'Version $version',
+          style: style,
+        );
+      },
     );
   }
 }
